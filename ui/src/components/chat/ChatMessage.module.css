@@ -1,0 +1,160 @@
+.msg {
+  display: flex;
+  gap: 1rem;
+  max-width: 85%;
+  animation: fadeUp 0.3s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.user .avatar {
+  background: var(--bg4);
+  color: var(--gold);
+  border: 1px solid var(--border);
+}
+
+.ai .avatar {
+  background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+  color: var(--bg);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bubble {
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.user .bubble {
+  background: var(--bg4);
+  border: 1px solid var(--border);
+}
+
+.ai .bubble {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+
+/* Tool calls */
+.toolCalls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.toolHeader {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+  font-family: var(--font-mono);
+}
+
+.toolCall {
+  background: var(--bg);
+  border: 1px solid rgba(76, 143, 175, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.toolCallHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(76, 143, 175, 0.1);
+  color: var(--blue);
+  cursor: pointer;
+}
+
+.toolIcon {
+  font-size: 0.8rem;
+}
+
+.toolExpand {
+  margin-left: auto;
+  opacity: 0.5;
+}
+
+.toolBody {
+  padding: 0.5rem 0.75rem;
+  color: var(--text-dim);
+  display: none;
+  white-space: pre-wrap;
+}
+
+.toolBody.open {
+  display: block;
+}
+
+/* RAG chunks */
+.ragChunks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ragHeader {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+  font-family: var(--font-mono);
+}
+
+.ragChunk {
+  background: var(--bg);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--gold-dim);
+}
+
+.ragScore {
+  display: inline-block;
+  background: rgba(201, 168, 76, 0.15);
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  margin-right: 0.4rem;
+}
+
+.note {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding: 0.2rem 0.3rem;
+}

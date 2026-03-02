@@ -1,0 +1,149 @@
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border-solid);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 280px;
+  min-width: 280px;
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.runBtn {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: var(--rag);
+  border: none;
+  color: #0d0f14;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 0.5rem;
+}
+
+.runBtn:hover {
+  filter: brightness(1.1);
+}
+
+.runBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.runBtn.secondary {
+  background: transparent;
+  border: 1px solid var(--border-solid);
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.runBtn.secondary:hover {
+  border-color: var(--rag);
+  color: var(--text);
+  background: var(--bg3);
+}
+
+.suiteBtn {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border-solid);
+  color: var(--text-dim);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.15s;
+  margin-bottom: 0.35rem;
+}
+
+.suiteBtn:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.suiteBtn.active {
+  background: var(--bg3);
+  border-color: var(--rag);
+  color: var(--text);
+}
+
+.suiteDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+}
+
+.historyItem {
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-solid);
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+  transition: all 0.1s;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.historyItem:hover {
+  background: var(--bg3);
+  border-color: var(--text-muted);
+}
+
+.hiSuite {
+  color: var(--rag);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.hiRate {
+  float: right;
+}
+
+.hiRate.good {
+  color: var(--pass);
+}
+
+.hiRate.bad {
+  color: var(--fail);
+}
+
+.hiTime {
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.noRuns {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0.5rem;
+}

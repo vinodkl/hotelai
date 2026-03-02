@@ -1,0 +1,197 @@
+.resultRow {
+  background: var(--bg2);
+  border: 1px solid var(--border-solid);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.header:hover {
+  background: var(--bg3);
+}
+
+.statusPill {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.statusPill.pass {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--pass);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.statusPill.fail {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--fail);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusPill.skip {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--skip);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.resultId {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.resultReason {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  max-width: 60%;
+  text-align: right;
+  font-style: italic;
+}
+
+.resultScore {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--skip);
+  flex-shrink: 0;
+}
+
+.body {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--border-solid);
+  display: none;
+}
+
+.body.open {
+  display: block;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detailSection {
+  margin-bottom: 0.5rem;
+}
+
+.detailTitle {
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.detailBox {
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.detailBox pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.toolChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.toolChip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: var(--agent);
+}
+
+.criteriaList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.criterion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--bg3);
+  border-radius: 4px;
+}
+
+.critPass {
+  color: var(--pass);
+}
+
+.critFail {
+  color: var(--fail);
+}
+
+.critReason {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.kwChip {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border-solid);
+}
+
+.kwFound {
+  border-color: var(--pass);
+  color: var(--pass);
+}
+
+.kwMissed {
+  border-color: var(--fail);
+  color: var(--fail);
+}
+
+.chunkItem {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: var(--bg3);
+  color: var(--text-dim);
+  border: 1px solid var(--border-solid);
+  display: block;
+  margin: 0.2rem 0;
+}

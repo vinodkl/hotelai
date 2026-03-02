@@ -1,0 +1,63 @@
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border-solid);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.value.pass {
+  color: var(--pass);
+}
+
+.value.fail {
+  color: var(--fail);
+}
+
+.value.skip {
+  color: var(--skip);
+}
+
+.value.total {
+  color: var(--text);
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.progressBar {
+  height: 4px;
+  background: var(--border-solid);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s;
+}

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Database files
+backend/data/hotel.db
+backend/data/hotel.db-shm
+backend/data/hotel.db-wal
+backend/data/evals.db
+backend/data/evals.db-shm
+backend/data/evals.db-wal
+
+# Build output
+ui/dist/
+
+# Claude local settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,30 @@
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.icon {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.welcome h2 {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+.welcome p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  max-width: 360px;
+  line-height: 1.6;
+}

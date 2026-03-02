@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HotelAI — Eval Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap');
+
+    :root {
+      --bg:      #0d0f14;
+      --bg2:     #13161d;
+      --bg3:     #1a1e28;
+      --bg4:     #222736;
+      --border:  #2a2f3f;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --dim:     #94a3b8;
+      --pass:    #22c55e;
+      --fail:    #ef4444;
+      --skip:    #f59e0b;
+      --rag:     #818cf8;
+      --agent:   #38bdf8;
+      --quality: #fb923c;
+      --reg:     #a78bfa;
+      --mono:    'Space Mono', monospace;
+      --sans:    'Syne', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .logo { font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; }
+    .logo span { color: var(--rag); }
+    .header-right { display: flex; gap: 0.75rem; align-items: center; }
+
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 57px); }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--bg2); border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .sidebar-section-title {
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.5rem; padding: 0 0.25rem;
+    }
+
+    .suite-btn {
+      width: 100%; padding: 0.7rem 0.85rem; border-radius: 8px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--dim); cursor: pointer; text-align: left; font-family: var(--sans);
+      font-size: 0.85rem; display: flex; align-items: center; gap: 0.6rem;
+      transition: all 0.15s; margin-bottom: 0.35rem;
+    }
+    .suite-btn:hover { background: var(--bg3); color: var(--text); }
+    .suite-btn.active { background: var(--bg3); border-color: var(--rag); color: var(--text); }
+    .suite-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    .run-btn {
+      width: 100%; padding: 0.8rem; border-radius: 8px;
+      background: var(--rag); border: none; color: #0d0f14;
+      font-family: var(--sans); font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; margin-bottom: 0.5rem;
+    }
+    .run-btn:hover { filter: brightness(1.1); }
+    .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .run-btn.secondary {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--dim); font-weight: 400;
+    }
+    .run-btn.secondary:hover { border-color: var(--rag); color: var(--text); background: var(--bg3); }
+
+    .history-item {
+      padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);
+      cursor: pointer; margin-bottom: 0.3rem; transition: all 0.1s;
+      font-family: var(--mono); font-size: 0.72rem;
+    }
+    .history-item:hover { background: var(--bg3); border-color: var(--muted); }
+    .history-item.selected { border-color: var(--rag); background: var(--bg3); }
+    .hi-suite { color: var(--rag); font-weight: 700; text-transform: uppercase; font-size: 0.65rem; }
+    .hi-rate { float: right; }
+    .hi-rate.good { color: var(--pass); }
+    .hi-rate.bad  { color: var(--fail); }
+    .hi-time { color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── Main ── */
+    .main { padding: 2rem; overflow-y: auto; }
+
+    .summary-cards {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem;
+    }
+    .sc-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; }
+    .sc-value { font-family: var(--mono); font-size: 2rem; font-weight: 700; }
+    .sc-value.pass  { color: var(--pass); }
+    .sc-value.fail  { color: var(--fail); }
+    .sc-value.total { color: var(--text); }
+    .sc-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--dim);
+    }
+    .suite-tag {
+      font-family: var(--mono); font-size: 0.65rem; padding: 0.2rem 0.5rem;
+      border-radius: 4px; border: 1px solid; text-transform: uppercase;
+    }
+
+    .result-row {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; margin-bottom: 0.5rem; overflow: hidden;
+    }
+    .result-header {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+      cursor: pointer; transition: background 0.1s;
+    }
+    .result-header:hover { background: var(--bg3); }
+    .status-pill {
+      font-family: var(--mono); font-size: 0.65rem; padding: 0.15rem 0.5rem;
+      border-radius: 4px; font-weight: 700; flex-shrink: 0;
+    }
+    .status-pill.pass { background: rgba(34,197,94,0.15); color: var(--pass); border: 1px solid rgba(34,197,94,0.3); }
+    .status-pill.fail { background: rgba(239,68,68,0.15); color: var(--fail); border: 1px solid rgba(239,68,68,0.3); }
+    .status-pill.skip { background: rgba(245,158,11,0.15); color: var(--skip); border: 1px solid rgba(245,158,11,0.3); }
+
+    .result-id { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); flex-shrink: 0; }
+    .result-reason { font-size: 0.82rem; color: var(--muted); margin-left: auto; max-width: 60%; text-align: right; font-style: italic; }
+    .result-score { font-family: var(--mono); font-size: 0.75rem; color: var(--skip); flex-shrink: 0; }
+
+    .result-body { padding: 0.75rem 1rem 1rem; border-top: 1px solid var(--border); display: none; }
+    .result-body.open { display: block; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .detail-box {
+      background: var(--bg); border-radius: 6px; padding: 0.75rem;
+      font-family: var(--mono); font-size: 0.72rem; color: var(--dim);
+    }
+    .detail-box pre { white-space: pre-wrap; word-break: break-all; }
+    .detail-title { color: var(--muted); margin-bottom: 0.4rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .criteria-list { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.5rem; }
+    .criterion {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; padding: 0.3rem 0.5rem;
+      background: var(--bg3); border-radius: 4px;
+    }
+    .crit-pass { color: var(--pass); }
+    .crit-fail { color: var(--fail); }
+
+    .tool-chip {
+      display: inline-block; font-family: var(--mono); font-size: 0.68rem;
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+      background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25);
+      color: var(--agent); margin: 0.15rem;
+    }
+
+    .placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 50vh; gap: 1rem; color: var(--muted);
+    }
+    .placeholder-icon { font-size: 3rem; opacity: 0.3; }
+    .placeholder p { font-size: 0.88rem; }
+
+    .progress-bar {
+      height: 4px; background: var(--border); border-radius: 2px; margin-top: 0.5rem; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 2px; transition: width 0.3s;
+    }
+
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(13,15,20,0.85);
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem; z-index: 100;
+    }
+    .loading-overlay.show { display: flex; }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid var(--border);
+      border-top-color: var(--rag); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-msg { font-family: var(--mono); font-size: 0.85rem; color: var(--dim); }
+
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1.1rem;
+      font-size: 0.82rem; transform: translateY(100px);
+      transition: transform 0.3s; z-index: 200;
+    }
+    .toast.show { transform: translateY(0); }
+    .toast.ok   { border-color: var(--pass); color: var(--pass); }
+    .toast.err  { border-color: var(--fail); color: var(--fail); }
+
+    .dataset-section { margin-top: 2rem; }
+    .dataset-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .dc-id { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+    .dc-q  { margin: 0.3rem 0 0.5rem; color: var(--text); }
+    .dc-kw { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .kw-chip {
+      font-family: var(--mono); font-size: 0.65rem;
+      padding: 0.1rem 0.4rem; border-radius: 4px;
+      background: var(--bg3); color: var(--dim); border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-msg" id="loading-msg">Running evals...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<header>
+  <div class="logo">HOTELAI <span>/ EVAL DASHBOARD</span></div>
+  <div class="header-right">
+    <span style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)" id="last-run-label">No runs yet</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+
+    <div>
+      <div class="sidebar-section-title">Run Evals</div>
+      <button class="run-btn" onclick="runEvals('full')">▶ Run All Suites</button>
+      <button class="run-btn secondary" onclick="runEvals('rag')">RAG Only</button>
+      <button class="run-btn secondary" onclick="runEvals('agent')">Agent Only</button>
+      <button class="run-btn secondary" onclick="runEvals('quality')">Quality Only</button>
+      <button class="run-btn secondary" onclick="runEvals('regression')">Regression Only</button>
+    </div>
+
+    <div>
+      <div class="sidebar-section-title">View</div>
+      <button class="suite-btn active" onclick="showView('results', this)">
+        <span class="suite-dot" style="background:var(--rag)"></span>Results
+      </button>
+      <button class="suite-btn" onclick="showView('dataset', this)">
+        <span class="suite-dot" style="background:var(--dim)"></span>Dataset
+      </button>
+      <button class="suite-btn" onclick="showView('history', this)">
+        <span class="suite-dot" style="background:var(--quality)"></span>History
+      </button>
+    </div>
+
+    <div>
+      <div class="sidebar-section-title">Recent Runs</div>
+      <div id="history-list"></div>
+    </div>
+
+  </aside>
+
+  <main class="main" id="main-content">
+    <div class="placeholder">
+      <div class="placeholder-icon">🧪</div>
+      <p>Run an eval suite to see results</p>
+      <p style="font-size:0.75rem;color:var(--border)">All 4 types: RAG · Agent · Quality · Regression</p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const API = 'http://localhost:3001/api/evals';
+  let currentResults = null;
+  let currentView = 'results';
+
+  // ── Run evals ──────────────────────────────────────────────────────────────
+  async function runEvals(suite) {
+    showLoading(`Running ${suite} evals… this takes 30–90s`);
+    try {
+      const res = await fetch(`${API}/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ suite })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      currentResults = data;
+      renderResults(data, suite);
+      loadHistory();
+      toast(`✓ ${suite} evals complete`, 'ok');
+    } catch (err) {
+      toast(`✗ ${err.message}`, 'err');
+      showPlaceholder(err.message);
+    }
+    hideLoading();
+  }
+
+  // ── Render results ─────────────────────────────────────────────────────────
+  function renderResults(data, suite) {
+    const main = document.getElementById('main-content');
+
+    // Collect all results
+    let allResults = [];
+    let suites = {};
+
+    if (suite === 'full' && data.report) {
+      suites = data.report.suites;
+      allResults = Object.values(suites).flatMap(s => s.results);
+      document.getElementById('last-run-label').textContent = `Pass rate: ${data.report.summary.passRate}`;
+    } else {
+      allResults = data.results || [];
+      suites[suite] = data;
+      document.getElementById('last-run-label').textContent = `Pass rate: ${data.passRate}`;
+    }
+
+    const passed = allResults.filter(r => r.status === 'pass').length;
+    const failed = allResults.filter(r => r.status === 'fail').length;
+    const rate   = allResults.length ? ((passed / allResults.length) * 100).toFixed(0) : 0;
+
+    main.innerHTML = `
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="sc-label">Pass Rate</div>
+          <div class="sc-value ${rate >= 80 ? 'pass' : rate >= 50 ? 'skip' : 'fail'}">${rate}%</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${rate}%;background:${rate >= 80 ? 'var(--pass)' : rate >= 50 ? 'var(--skip)' : 'var(--fail)'}"></div></div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-label">Passed</div>
+          <div class="sc-value pass">${passed}</div>
+          <div class="sc-sub">of ${allResults.length} cases</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-label">Failed</div>
+          <div class="sc-value fail">${failed}</div>
+          <div class="sc-sub">cases to fix</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-label">Suites Run</div>
+          <div class="sc-value total">${Object.keys(suites).length}</div>
+          <div class="sc-sub">${Object.keys(suites).join(', ')}</div>
+        </div>
+      </div>
+
+      ${Object.entries(suites).map(([key, s]) => `
+        <div style="margin-bottom: 2rem;">
+          <div class="section-header">
+            <div class="section-title">${s.name || key}</div>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <span class="suite-tag" style="border-color:${suiteColor(key)};color:${suiteColor(key)}">${key}</span>
+              <span style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${s.passed}/${s.total} passed</span>
+            </div>
+          </div>
+          ${(s.results || []).map(r => renderResultRow(r, key)).join('')}
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function renderResultRow(r, suiteKey) {
+    const id = `res-${r.id}-${Math.random().toString(36).slice(2,6)}`;
+    const scoreStr = r.score != null ? `<span class="result-score">${(r.score * 100).toFixed(0)}%</span>` : '';
+
+    return `
+      <div class="result-row">
+        <div class="result-header" onclick="toggleDetail('${id}')">
+          <span class="status-pill ${r.status}">${r.status.toUpperCase()}</span>
+          <span class="result-id">${r.id}</span>
+          ${scoreStr}
+          <span class="result-reason">${escHtml(r.reason || r.summary || r.note || '')}</span>
+        </div>
+        <div class="result-body" id="${id}">
+          ${renderDetail(r, suiteKey)}
+        </div>
+      </div>`;
+  }
+
+  function renderDetail(r, suiteKey) {
+    let html = '';
+
+    // Tool calls (agent)
+    if (r.toolsCalled) {
+      html += `<div style="margin-bottom:0.75rem">
+        <div class="detail-title">Tools Called</div>
+        ${r.toolsCalled.map(t => `<span class="tool-chip">${t}</span>`).join('')}
+      </div>`;
+    }
+
+    // Criteria (quality)
+    if (r.criteria) {
+      html += `<div style="margin-bottom:0.75rem">
+        <div class="detail-title">Grading Criteria</div>
+        <div class="criteria-list">
+          ${r.criteria.map(c => `
+            <div class="criterion">
+              <span class="${c.result === 'PASS' ? 'crit-pass' : 'crit-fail'}">${c.result === 'PASS' ? '✓' : '✗'}</span>
+              <span>${escHtml(c.criterion)}</span>
+              ${c.reason ? `<span style="margin-left:auto;font-size:0.72rem;color:var(--muted)">${escHtml(c.reason)}</span>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    // Keyword recall (rag)
+    if (r.keywordsFound || r.keywordsMissed) {
+      html += `<div style="margin-bottom:0.75rem">
+        <div class="detail-title">Keywords — recall ${r.keywordRecall}</div>
+        <div style="margin-top:0.3rem">
+          ${(r.keywordsFound || []).map(k => `<span class="kw-chip" style="border-color:var(--pass);color:var(--pass)">✓ ${k}</span>`).join(' ')}
+          ${(r.keywordsMissed || []).map(k => `<span class="kw-chip" style="border-color:var(--fail);color:var(--fail)">✗ ${k}</span>`).join(' ')}
+        </div>
+      </div>`;
+    }
+
+    // Retrieved chunks (rag)
+    if (r.chunks && r.chunks.length) {
+      html += `<div style="margin-bottom:0.75rem">
+        <div class="detail-title">Retrieved Chunks (${r.chunks.length})</div>
+        ${r.chunks.map(c => `<div class="kw-chip" style="display:block;margin:0.2rem 0">[${c.score?.toFixed(2) || '?'}] ${escHtml(c.title || '')} — ${escHtml((c.snippet || '').substring(0,80))}…</div>`).join('')}
+      </div>`;
+    }
+
+    // Response snippet
+    if (r.response) {
+      html += `<div class="detail-box">
+        <div class="detail-title">AI Response</div>
+        <pre>${escHtml(r.response)}</pre>
+      </div>`;
+    }
+
+    return html || `<div style="color:var(--muted);font-size:0.8rem">${JSON.stringify(r, null, 2)}</div>`;
+  }
+
+  // ── Dataset view ───────────────────────────────────────────────────────────
+  async function showDataset() {
+    const main = document.getElementById('main-content');
+    main.innerHTML = '<div style="color:var(--muted);padding:2rem;font-family:var(--mono)">Loading dataset…</div>';
+    try {
+      const res = await fetch(`${API}/dataset`);
+      const data = await res.json();
+      main.innerHTML = `
+        <div style="margin-bottom:2rem">
+          <div class="section-header">
+            <div class="section-title">RAG Eval Cases (${data.rag.length})</div>
+            <span class="suite-tag" style="border-color:var(--rag);color:var(--rag)">rag</span>
+          </div>
+          ${data.rag.map(c => `
+            <div class="dataset-card">
+              <div class="dc-id">${c.id} · ${c.category}</div>
+              <div class="dc-q">${escHtml(c.question)}</div>
+              <div class="dc-kw">${(c.expectedKeywords || []).map(k => `<span class="kw-chip">${k}</span>`).join('')}</div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-bottom:2rem">
+          <div class="section-header">
+            <div class="section-title">Agent Eval Cases (${data.agent.length})</div>
+            <span class="suite-tag" style="border-color:var(--agent);color:var(--agent)">agent</span>
+          </div>
+          ${data.agent.map(c => `
+            <div class="dataset-card">
+              <div class="dc-id">${c.id} · ${c.category}</div>
+              <div class="dc-q">${escHtml(c.request)}</div>
+              <div class="dc-kw">${(c.expectedTools || []).map(t => `<span class="tool-chip">${t}</span>`).join('')}</div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-bottom:2rem">
+          <div class="section-header">
+            <div class="section-title">Quality Eval Cases (${data.quality.length})</div>
+            <span class="suite-tag" style="border-color:var(--quality);color:var(--quality)">quality</span>
+          </div>
+          ${data.quality.map(c => `
+            <div class="dataset-card">
+              <div class="dc-id">${c.id}</div>
+              <div class="dc-q">${escHtml(c.question)}</div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">${c.gradingCriteria.length} criteria</div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-bottom:2rem">
+          <div class="section-header">
+            <div class="section-title">Regression Cases (${data.regression.length})</div>
+            <span class="suite-tag" style="border-color:var(--reg);color:var(--reg)">regression</span>
+          </div>
+          ${data.regression.map(c => `
+            <div class="dataset-card">
+              <div class="dc-id">${c.id} · ${c.type}</div>
+              <div class="dc-q">${escHtml(c.description)}</div>
+            </div>`).join('')}
+        </div>
+      `;
+    } catch {
+      main.innerHTML = '<div style="color:var(--fail);padding:2rem">Backend not running — start with: cd backend && npm run dev</div>';
+    }
+  }
+
+  // ── History view ───────────────────────────────────────────────────────────
+  async function showHistoryView() {
+    const main = document.getElementById('main-content');
+    try {
+      const res = await fetch(`${API}/history?limit=30`);
+      const history = await res.json();
+      if (!history.length) {
+        main.innerHTML = '<div style="color:var(--muted);padding:2rem">No eval runs yet. Run some evals first.</div>';
+        return;
+      }
+      main.innerHTML = `
+        <div class="section-title" style="margin-bottom:1rem">Past ${history.length} Eval Runs</div>
+        ${history.map(h => {
+          const rate = parseInt(h.pass_rate);
+          return `<div class="result-row" style="cursor:default">
+            <div class="result-header" style="cursor:default">
+              <span class="suite-tag" style="border-color:${suiteColor(h.suite)};color:${suiteColor(h.suite)}">${h.suite}</span>
+              <span style="font-family:var(--mono);font-size:0.75rem;color:var(--dim)">${h.id}</span>
+              <span class="result-score" style="color:${rate >= 80 ? 'var(--pass)' : rate >= 50 ? 'var(--skip)' : 'var(--fail)'}">${h.pass_rate}</span>
+              <span style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);margin-left:auto">${h.passed}/${h.total} · ${new Date(h.run_at).toLocaleString()}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      `;
+    } catch {
+      main.innerHTML = '<div style="color:var(--fail);padding:2rem">Backend not running.</div>';
+    }
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  async function loadHistory() {
+    try {
+      const res = await fetch(`${API}/history?limit=8`);
+      const history = await res.json();
+      const el = document.getElementById('history-list');
+      el.innerHTML = history.map(h => {
+        const rate = parseInt(h.pass_rate);
+        return `<div class="history-item" onclick="loadRun('${h.id}')">
+          <div><span class="hi-suite">${h.suite}</span>
+          <span class="hi-rate ${rate >= 80 ? 'good' : 'bad'}">${h.pass_rate}</span></div>
+          <div class="hi-time">${new Date(h.run_at).toLocaleString()}</div>
+        </div>`;
+      }).join('') || '<div style="font-size:0.75rem;color:var(--muted);padding:0.5rem">No runs yet</div>';
+    } catch {}
+  }
+
+  async function loadRun(id) {
+    showLoading('Loading run…');
+    try {
+      const res = await fetch(`${API}/run/${id}`);
+      const run = await res.json();
+      const fakeData = { results: run.results, passRate: run.pass_rate, passed: run.passed, failed: run.failed, total: run.total, name: run.suite };
+      renderResults({ report: { suites: { [run.suite]: fakeData }, summary: { passRate: run.pass_rate } } }, 'full');
+      document.getElementById('last-run-label').textContent = `Loaded: ${id}`;
+    } catch (err) { toast(err.message, 'err'); }
+    hideLoading();
+  }
+
+  function showView(view, btn) {
+    currentView = view;
+    document.querySelectorAll('.suite-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (view === 'dataset') showDataset();
+    else if (view === 'history') showHistoryView();
+    else if (currentResults) renderResults(currentResults, currentResults.suite || 'full');
+    else showPlaceholder();
+  }
+
+  function showPlaceholder(msg = 'Run an eval suite to see results') {
+    document.getElementById('main-content').innerHTML = `
+      <div class="placeholder">
+        <div class="placeholder-icon">🧪</div>
+        <p>${escHtml(msg)}</p>
+      </div>`;
+  }
+
+  function toggleDetail(id) {
+    const el = document.getElementById(id);
+    el?.classList.toggle('open');
+  }
+
+  function suiteColor(k) {
+    return { rag: 'var(--rag)', agent: 'var(--agent)', quality: 'var(--quality)', regression: 'var(--reg)', full: 'var(--text)' }[k] || 'var(--dim)';
+  }
+
+  function showLoading(msg = 'Running…') {
+    document.getElementById('loading-msg').textContent = msg;
+    document.getElementById('loading').classList.add('show');
+  }
+  function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+
+  function toast(msg, type = 'ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast show ${type}`;
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  loadHistory();
+</script>
+
+</body>
+</html>

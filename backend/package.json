@@ -1,0 +1,31 @@
+{
+  "name": "hotelai-backend",
+  "version": "2.0.0",
+  "description": "Hotel Reservation System with SQLite DB + AI capabilities",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config src/index.js",
+    "start": "node -r dotenv/config src/index.js",
+    "db:reset": "node -e \"import('./src/db/database.js').then(async m => { await m.initDatabase(); require('fs').unlinkSync('data/hotel.db'); console.log('DB reset'); })\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.37.0",
+    "@langchain/anthropic": "^0.3.7",
+    "@langchain/community": "^0.3.11",
+    "chromadb": "^1.9.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "fs-extra": "^11.2.0",
+    "langchain": "^0.3.5",
+    "openai": "^6.25.0",
+    "sql.js": "^1.12.0",
+    "uuid": "^9.0.1",
+    "voyageai": "^0.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
