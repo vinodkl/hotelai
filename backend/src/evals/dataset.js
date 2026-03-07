@@ -180,6 +180,15 @@ export const agentEvalCases = [
     mustNotCallTools: [],
     category: 'room_service',
   },
+  {
+    id: 'agent-010',
+    // Pricing query → needs room lookup
+    request: 'Find guest named Emma and show me her profile',
+    expectedTools: ['search_guests', 'get_guest_profile'],
+    expectedToolInputs: [{ name: 'Emma' }],
+    mustNotCallTools: [],
+    category: 'lookup',
+  },
 ];
 
 // ─── 3. RESPONSE QUALITY EVAL CASES ──────────────────────────────────────────

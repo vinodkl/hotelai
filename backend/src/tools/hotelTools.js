@@ -95,7 +95,8 @@ export const toolDefinitions = [
     input_schema: {
       type: 'object',
       properties: {
-        tier: { type: 'string', enum: ['bronze','silver','gold','platinum'], description: 'Filter by loyalty tier' }
+        tier: { type: 'string', enum: ['bronze','silver','gold','platinum'], description: 'Filter by loyalty tier' },
+        name: { type: 'string', description: 'Filter by name' }
       }
     }
   },
@@ -190,6 +191,7 @@ export const executeTool = (toolName, toolInput) => {
     case 'search_guests': {
       let guests = GuestRepo.findAll();
       if (toolInput.tier) guests = guests.filter(g => g.loyaltyTier === toolInput.tier);
+      if (toolInput.name) guests = guests.filter(g => g.name.toLowerCase().includes(toolInput.name.toLowerCase()));
       return { guests: guests.slice(0, 10), count: guests.length };
     }
 
