@@ -171,6 +171,15 @@ export const agentEvalCases = [
     mustNotCallTools: [],
     category: 'pricing',
   },
+  {
+    id: 'agent-009',
+    // Pricing query → needs room lookup
+    request: 'What can I order from room service?',
+    expectedTools: ['get_room_service_menu'],
+    expectedToolInputs: [{}],
+    mustNotCallTools: [],
+    category: 'room_service',
+  },
 ];
 
 // ─── 3. RESPONSE QUALITY EVAL CASES ──────────────────────────────────────────

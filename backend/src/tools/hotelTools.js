@@ -98,6 +98,15 @@ export const toolDefinitions = [
         tier: { type: 'string', enum: ['bronze','silver','gold','platinum'], description: 'Filter by loyalty tier' }
       }
     }
+  },
+  {
+    name: 'get_room_service_menu',
+    description: 'Get the menu for the room service with food, drinks and desserts items with price. Use when a guest asks about the menu. Return a list of items with name, price, and category.',
+    input_schema: {
+      type: 'object',
+      properties: {},
+      required: []
+    }
   }
 ];
 
@@ -184,6 +193,9 @@ export const executeTool = (toolName, toolInput) => {
       return { guests: guests.slice(0, 10), count: guests.length };
     }
 
+    case 'get_room_service_menu': {
+      return { menu: [ { name: 'Margherita Pizza', price: 18, category: 'Mains' },  { name: 'Garden Salad', price: 12, category: 'Salads' }, { name: 'Coca Cola', price: 3, category: 'Drinks' }, { name: 'Water', price: 1, category: 'Drinks' }] };
+    }
     default:
       return { error: `Unknown tool: ${toolName}` };
   }
