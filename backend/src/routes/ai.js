@@ -42,6 +42,7 @@ console.log('history', history)
     res.json({
       phase: 'Phase 1 — Basic LLM',
       response: response.content[0].text,
+      usage: { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens },
       note: '⚠️ This LLM has no hotel data. Ask about policies to see it hallucinate!'
     });
   } catch (err) {

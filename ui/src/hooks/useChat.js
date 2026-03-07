@@ -45,6 +45,7 @@ export function useChat() {
   const [chatHistory, setChatHistory] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [lastUsage, setLastUsage] = useState(null)
 
   const phaseConfig = PHASES[currentPhase]
 
@@ -53,6 +54,7 @@ export function useChat() {
     setMessages([])
     setChatHistory([])
     setError(null)
+    setLastUsage(null)
   }, [])
 
   const sendMessage = useCallback(async (message) => {
@@ -70,6 +72,8 @@ export function useChat() {
       // Call the appropriate API based on phase
       const apiMethod = aiApi[currentPhase]
       const data = await apiMethod(message, chatHistory)
+
+      if (data.usage) setLastUsage(data.usage)
 
       // Add AI response
       const aiMessage = {
@@ -120,6 +124,7 @@ export function useChat() {
     setMessages([])
     setChatHistory([])
     setError(null)
+    setLastUsage(null)
   }, [])
 
   return {
@@ -129,6 +134,7 @@ export function useChat() {
     messages,
     isLoading,
     error,
+    lastUsage,
     switchPhase,
     sendMessage,
     ingestDocs,

@@ -242,6 +242,7 @@ Always be specific with times, prices, and policies. Do not make up information 
   return {
     response: response.content[0].text,
     embedder: vectorStore.name,
+    usage: { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens },
     retrievedChunks: relevantChunks.map(c => ({
       docId: c.docId,
       title: c.title,

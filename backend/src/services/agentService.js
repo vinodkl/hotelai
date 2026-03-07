@@ -48,6 +48,8 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
   const toolCalls = []; // Track all tool calls for the UI (great for learning!)
   let iterations = 0;
   const MAX_ITERATIONS = 10; // Safety limit
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
 
   console.log(`\n🤖 AGENT START: "${userMessage}"`);
   console.log(`═══════════════════════════════════`);
@@ -67,6 +69,8 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
     });
 
     console.log(`Stop reason: ${response.stop_reason}`);
+    totalInputTokens += response.usage?.input_tokens || 0;
+    totalOutputTokens += response.usage?.output_tokens || 0;
 
     // Add Claude's response to message history
     messages.push({ role: 'assistant', content: response.content });
@@ -78,7 +82,8 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
       return {
         response: finalText,
         toolCalls, // Send to UI so user can see the agent's reasoning
-        iterations
+        iterations,
+        usage: { inputTokens: totalInputTokens, outputTokens: totalOutputTokens }
       };
     }
 

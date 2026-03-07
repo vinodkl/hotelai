@@ -62,3 +62,59 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* Token usage meter */
+.tokenMeter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.tokenNumbers {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+.tokenIn {
+  font-size: 0.62rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.tokenSep {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+}
+
+.tokenTotal {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+}
+
+.tokenBar {
+  width: 100%;
+  height: 3px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tokenBarFill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.tokenPct {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  line-height: 1;
+}

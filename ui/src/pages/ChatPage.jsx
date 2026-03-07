@@ -15,6 +15,7 @@ function ChatPage() {
     phases,
     messages,
     isLoading,
+    lastUsage,
     switchPhase,
     sendMessage,
     ingestDocs,
@@ -84,6 +85,7 @@ function ChatPage() {
             disabled={isLoading}
             value={inputValue}
             onChange={setInputValue}
+            usage={lastUsage}
           />
         </main>
       </div>
