@@ -51,6 +51,9 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
 
+  const today = new Date().toISOString().split('T')[0];
+  const systemPrompt = `${SYSTEM_PROMPT}\n\nToday's date is ${today}.`;
+
   console.log(`\n🤖 AGENT START: "${userMessage}"`);
   console.log(`═══════════════════════════════════`);
 
@@ -63,7 +66,7 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       tools: toolDefinitions,
       messages
     });
