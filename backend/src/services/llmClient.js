@@ -1,26 +1,26 @@
 // ═══════════════════════════════════════════════════════════════
-// LLM CLIENT — Unified adapter for Anthropic and Ollama (OpenAI-compatible)
+// LLM CLIENT — Gateway adapter (OpenAI-compatible)
 //
-// Set LLM_PROVIDER in .env to switch:
-//   LLM_PROVIDER=anthropic  → uses Anthropic API (default)
-//   LLM_PROVIDER=ollama     → uses local Ollama at OLLAMA_BASE_URL
+// HotelAI always talks to a local LLM gateway over the OpenAI-compatible API.
+// The gateway handles routing: to Anthropic, Ollama, or any other backend.
 //
-// Set OLLAMA_MODEL to choose the model (default: llama3.1)
-// Note: For agent/tool-use phases, use a model that supports function calling,
-//       e.g. llama3.1, mistral-nemo, qwen2.5, etc.
+// Config (.env):
+//   LLM_GATEWAY_URL  — base URL of the gateway  (default: http://localhost:8080/v1)
+//   LLM_GATEWAY_KEY  — API key if the gateway requires one (default: not-required)
+//   LLM_MODEL        — model name as the gateway expects it (default: claude-sonnet-4-6)
 //
 // The adapter exposes the same interface as the Anthropic SDK:
 //   client.messages.create({ model, max_tokens, system, messages, tools })
 //   → { content, stop_reason, usage }
-// So all callers work unchanged regardless of provider.
+// So all callers work unchanged.
 // ═══════════════════════════════════════════════════════════════
 
-import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 
-const PROVIDER = process.env.LLM_PROVIDER || 'anthropic';
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1';
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.1';
+const GATEWAY_URL = process.env.LLM_GATEWAY_URL || 'http://localhost:8080/v1';
+const GATEWAY_KEY = process.env.LLM_GATEWAY_KEY || 'not-required';
+
+export const DEFAULT_MODEL = process.env.LLM_MODEL || 'claude-sonnet-4-6';
 
 // ─── Format converters (Anthropic ↔ OpenAI) ──────────────────────────────────
 
@@ -131,27 +131,21 @@ function toAnthropicResponse(openaiResponse) {
   };
 }
 
-// ─── Ollama adapter (OpenAI-compatible, Anthropic-shaped output) ──────────────
+// ─── Gateway client (OpenAI-compatible, Anthropic-shaped output) ──────────────
 
-class OllamaClient {
+class GatewayClient {
   constructor() {
-    this.openai = new OpenAI({
-      baseURL: OLLAMA_BASE_URL,
-      apiKey: 'ollama' // required by the SDK but not validated by Ollama
-    });
+    this.openai = new OpenAI({ baseURL: GATEWAY_URL, apiKey: GATEWAY_KEY });
     this.messages = {
       create: async (params) => {
         const { model, max_tokens, system, messages, tools } = params;
-        const resolvedModel = model.startsWith('ollama:') ? model.slice(7) : OLLAMA_MODEL;
-
-        const openaiMessages = toOpenAIMessages(system, messages);
-        const openaiTools = toOpenAITools(tools);
 
         const requestParams = {
-          model: resolvedModel,
+          model: model || DEFAULT_MODEL,
           max_tokens,
-          messages: openaiMessages,
+          messages: toOpenAIMessages(system, messages),
         };
+        const openaiTools = toOpenAITools(tools);
         if (openaiTools) requestParams.tools = openaiTools;
 
         const response = await this.openai.chat.completions.create(requestParams);
@@ -161,22 +155,14 @@ class OllamaClient {
   }
 }
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
+// ─── Singleton factory ────────────────────────────────────────────────────────
 
 let _client = null;
 
 export function getLLMClient() {
-  if (_client) return _client;
-
-  if (PROVIDER === 'ollama') {
-    console.log(`🦙 LLM Provider: Ollama at ${OLLAMA_BASE_URL} (model: ${OLLAMA_MODEL})`);
-    _client = new OllamaClient();
-  } else {
-    console.log(`🤖 LLM Provider: Anthropic`);
-    _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  if (!_client) {
+    console.log(`LLM Gateway: ${GATEWAY_URL} (model: ${DEFAULT_MODEL})`);
+    _client = new GatewayClient();
   }
-
   return _client;
 }
-
-export const DEFAULT_MODEL = PROVIDER === 'ollama' ? OLLAMA_MODEL : 'claude-sonnet-4-6';
