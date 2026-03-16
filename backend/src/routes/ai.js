@@ -8,12 +8,12 @@
 // ═══════════════════════════════════════════════════════════════
 
 import express from 'express';
-import Anthropic from '@anthropic-ai/sdk';
 import { ragChat, ingestDocuments, compareRetrieval } from '../rag/ragService.js';
 import { runAgent } from '../services/agentService.js';
+import { getLLMClient, DEFAULT_MODEL } from '../services/llmClient.js';
 
 const router = express.Router();
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const llmClient = getLLMClient();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PHASE 1: Basic LLM Chat
@@ -24,14 +24,13 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 // ─────────────────────────────────────────────────────────────────────────────
 router.post('/chat', async (req, res) => {
   const { message, history = [] } = req.body;
-console.log('history', history)
+
   if (!message) return res.status(400).json({ error: 'message is required' });
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+    const response = await llmClient.messages.create({
+      model: DEFAULT_MODEL,
       max_tokens: 1024,
-      temperature: 0,
       system: 'You are a helpful hotel concierge assistant. Be friendly and professional.',
       messages: [
         ...history,
