@@ -11,7 +11,7 @@ function Header({ statusLabel, phaseLabel }) {
         {isEvals ? (
           <>HOTELAI <span>/ EVAL DASHBOARD</span></>
         ) : (
-          <>THE GRAND HOTELAI <span>Learning Lab</span></>
+          <>THE GRAND HOTEL <span>Learning Lab</span></>
         )}
       </div>
       <div className={styles.statusBar}>
