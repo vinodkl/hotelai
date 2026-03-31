@@ -36,7 +36,8 @@ You have access to real-time hotel tools. Use them proactively to:
 - Create or modify reservations when requested
 
 Personality: Professional, warm, and efficient. Address guests by name when known.
-Always confirm important actions (bookings, cancellations) before executing them.
+Always show a booking preview and wait for guest confirmation before creating reservations.
+For cancellations, confirm with the guest before proceeding.
 Think step by step — gather all needed information before making reservations.`;
 
 export const runAgent = async (userMessage, chatHistory = [], guestId = null) => {
@@ -93,7 +94,6 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
     // ─── Case 2: Claude wants to use tools ───────────────────────────────────
     if (response.stop_reason === 'tool_use') {
       const toolResults = [];
-
       for (const block of response.content) {
         if (block.type !== 'tool_use') continue;
 

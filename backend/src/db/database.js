@@ -26,6 +26,7 @@ const DB_PATH = join(__dirname, '../../data/hotel.db');
 const DATA_DIR = join(__dirname, '../../data');
 
 let db = null;
+let inTransaction = false;
 
 // ─── Initialise (called once at startup) ──────────────────────────────────────
 export async function initDatabase() {
@@ -95,7 +96,7 @@ export function execute(sql, params = []) {
   db.run(sql, params);
   const meta = db.exec('SELECT changes() as changes, last_insert_rowid() as lastId');
   const row = meta[0]?.values[0];
-  persistDatabase(); // auto-persist on every write
+  if (!inTransaction) persistDatabase(); // skip inside a transaction — transaction() persists once at commit
   return {
     changes: row?.[0] ?? 0,
     lastInsertRowid: row?.[1] ?? null,
@@ -108,12 +109,15 @@ export function execute(sql, params = []) {
  */
 export function transaction(fn) {
   db.run('BEGIN TRANSACTION');
+  inTransaction = true;
   try {
     const result = fn();
     db.run('COMMIT');
+    inTransaction = false;
     persistDatabase();
     return result;
   } catch (err) {
+    inTransaction = false;
     db.run('ROLLBACK');
     throw err;
   }

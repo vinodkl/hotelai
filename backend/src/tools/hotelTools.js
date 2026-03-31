@@ -43,9 +43,10 @@ export const toolDefinitions = [
         checkOut:        { type: 'string', description: 'Check-out date YYYY-MM-DD' },
         adults:          { type: 'number', description: 'Number of adults' },
         children:        { type: 'number', description: 'Number of children' },
-        specialRequests: { type: 'string', description: 'Special requests' }
+        specialRequests: { type: 'string', description: 'Special requests' },
+        confirm:         { type: 'boolean', description: 'Confirm the reservation' }
       },
-      required: ['guestId','roomId','checkIn','checkOut']
+      required: ['guestId','roomId','checkIn','checkOut', 'confirm']
     }
   },
   {
@@ -136,6 +137,32 @@ export const executeTool = (toolName, toolInput) => {
 
     case 'create_reservation': {
       try {
+        const room = RoomRepo.findById(toolInput.roomId);
+        if (!room) return { error: 'Room not found' };
+
+        if (!toolInput.confirm) {
+          // Phase 1: return a pricing preview — do NOT write to DB
+          const nights = Math.ceil((new Date(toolInput.checkOut) - new Date(toolInput.checkIn)) / 86400000);
+          const base = nights * room.pricePerNight;
+          const tax  = base * 0.12;
+          const total = base + tax;
+          console.log(`   → Preview only (confirm=false)`);
+          return {
+            preview: true,
+            message: 'Booking preview — please confirm to finalise',
+            roomId: room.id,
+            roomType: room.type,
+            checkIn: toolInput.checkIn,
+            checkOut: toolInput.checkOut,
+            nights,
+            pricePerNight: room.pricePerNight,
+            subtotal: +base.toFixed(2),
+            taxes: +tax.toFixed(2),
+            total: +total.toFixed(2),
+            breakdown: `${nights} nights × $${room.pricePerNight} = $${base.toFixed(2)} + 12% tax $${tax.toFixed(2)} = $${total.toFixed(2)}`
+          };
+        }
+
         const reservation = ReservationRepo.create(toolInput);
         console.log(`   → Created ${reservation.id}`);
         return { success: true, reservation };
