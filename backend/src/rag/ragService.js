@@ -31,11 +31,11 @@
 // Compare them with POST /api/ai/embed-compare
 // ═══════════════════════════════════════════════════════════════
 
+import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { hotelDocuments } from '../data/documents.js';
-import { getLLMClient, DEFAULT_MODEL } from '../services/llmClient.js';
 
-const llmClient = getLLMClient();
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // Initialise OpenAI client only if key is present
 const openai = process.env.OPENAI_API_KEY
@@ -229,8 +229,8 @@ ${context}
 
 Always be specific with times, prices, and policies. Do not make up information not in the context.`;
   // STEP 4: Call Claude with the augmented prompt
-  const response = await llmClient.messages.create({
-    model: DEFAULT_MODEL,
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-6',
     max_tokens: 1024,
     system: systemPrompt,
     messages: [

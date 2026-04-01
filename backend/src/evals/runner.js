@@ -26,13 +26,13 @@
 //    Run this on every code change (like unit tests)
 // ═══════════════════════════════════════════════════════════════════════════════
 
+import Anthropic from '@anthropic-ai/sdk';
 import { ragEvalCases, agentEvalCases, qualityEvalCases, regressionEvalCases } from './dataset.js';
 import { ragChat, ingestDocuments, vectorStore } from '../rag/ragService.js';
 import { runAgent } from '../services/agentService.js';
 import { StatsRepo } from '../db/repository.js';
-import { getLLMClient, DEFAULT_MODEL } from '../services/llmClient.js';
 
-const anthropic = getLLMClient();
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // ─── Shared result shape ──────────────────────────────────────────────────────
 const pass = (id, details = {}) => ({ id, status: 'pass', ...details });
@@ -193,7 +193,7 @@ Respond with a JSON object exactly like this:
 }`;
 
       const judgeResponse = await anthropic.messages.create({
-        model: DEFAULT_MODEL,
+        model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         messages: [{ role: 'user', content: judgePrompt }],
       });

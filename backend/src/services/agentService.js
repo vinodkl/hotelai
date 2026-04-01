@@ -21,10 +21,10 @@
 // Your tools are just regular functions — the AI orchestrates them.
 // ═══════════════════════════════════════════════════════════════
 
+import Anthropic from '@anthropic-ai/sdk';
 import { toolDefinitions, executeTool } from '../tools/hotelTools.js';
-import { getLLMClient, DEFAULT_MODEL } from './llmClient.js';
 
-const llmClient = getLLMClient();
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM_PROMPT = `You are an expert AI concierge for The Grand HotelAI. 
 You help guests with reservations, answer questions, and handle all hotel-related requests.
@@ -64,8 +64,8 @@ export const runAgent = async (userMessage, chatHistory = [], guestId = null) =>
     console.log(`\n[Iteration ${iterations}]`);
 
     // Ask Claude what to do next (it can respond OR call a tool)
-    const response = await llmClient.messages.create({
-      model: DEFAULT_MODEL,
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
       max_tokens: 4096,
       system: systemPrompt,
       tools: toolDefinitions,
